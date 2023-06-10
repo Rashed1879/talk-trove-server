@@ -49,6 +49,7 @@ async function run() {
 		await client.connect();
 
 		const userCollection = client.db('talkTroveDB').collection('users');
+		const classCollection = client.db('talkTroveDB').collection('classes');
 
 		app.post('/jwt', (req, res) => {
 			const user = req.body;
@@ -146,6 +147,13 @@ async function run() {
 				},
 			};
 			const result = await userCollection.updateOne(filter, updateDoc);
+			res.send(result);
+		});
+
+		// Classes Related Api
+		app.post('/classes', verifyJWT, verifyInstructor, async (req, res) => {
+			const newClass = req.body;
+			const result = await classCollection.insertOne(newClass);
 			res.send(result);
 		});
 
