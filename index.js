@@ -228,11 +228,25 @@ async function run() {
 
 		// Selected Class related Api
 
+		app.get('/selectedClasses/:email', verifyJWT, async (req, res) => {
+			const email = req.params.email;
+			const query = { studentEmail: email };
+			const result = await selectedClassCollection.find(query).toArray();
+			res.send(result);
+		});
+
 		app.post('/selectedClasses', verifyJWT, async (req, res) => {
 			const selectedClass = req.body;
 			const result = await selectedClassCollection.insertOne(
 				selectedClass
 			);
+			res.send(result);
+		});
+
+		app.delete('/selectedClasses/:id', verifyJWT, async (req, res) => {
+			const id = req.params.id;
+			const query = { _id: new ObjectId(id) };
+			const result = await selectedClassCollection.deleteOne(query);
 			res.send(result);
 		});
 
