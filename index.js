@@ -151,7 +151,6 @@ async function run() {
 		});
 
 		// Classes Related Api
-
 		app.get('/classes', verifyJWT, verifyAdmin, async (req, res) => {
 			const result = await classCollection.find().toArray();
 			res.send(result);
@@ -172,6 +171,29 @@ async function run() {
 		app.post('/classes', verifyJWT, verifyInstructor, async (req, res) => {
 			const newClass = req.body;
 			const result = await classCollection.insertOne(newClass);
+			res.send(result);
+		});
+
+		app.patch('/classes/approve/:id', async (req, res) => {
+			const id = req.params.id;
+			const filter = { _id: new ObjectId(id) };
+			const updateDoc = {
+				$set: {
+					status: 'approved',
+				},
+			};
+			const result = await classCollection.updateOne(filter, updateDoc);
+			res.send(result);
+		});
+		app.patch('/classes/deny/:id', async (req, res) => {
+			const id = req.params.id;
+			const filter = { _id: new ObjectId(id) };
+			const updateDoc = {
+				$set: {
+					status: 'deny',
+				},
+			};
+			const result = await classCollection.updateOne(filter, updateDoc);
 			res.send(result);
 		});
 
