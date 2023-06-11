@@ -83,6 +83,13 @@ async function run() {
 			next();
 		};
 
+		// This api is under classes related api, but it works here only
+		app.get('/classes/approved', async (req, res) => {
+			const query = { status: 'approved' };
+			const result = await classCollection.find(query).toArray();
+			res.send(result);
+		});
+
 		// user related Api
 		app.get('/users', verifyJWT, verifyAdmin, async (req, res) => {
 			const result = await userCollection.find().toArray();
@@ -97,6 +104,12 @@ async function run() {
 				return res.send({ message: 'user already exists' });
 			}
 			const result = await userCollection.insertOne(user);
+			res.send(result);
+		});
+
+		app.get('/users/instructors', async (req, res) => {
+			const query = { role: 'instructor' };
+			const result = await userCollection.find(query).toArray();
 			res.send(result);
 		});
 
