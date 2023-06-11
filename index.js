@@ -152,6 +152,11 @@ async function run() {
 
 		// Classes Related Api
 
+		app.get('/classes', verifyJWT, verifyAdmin, async (req, res) => {
+			const result = await classCollection.find().toArray();
+			res.send(result);
+		});
+
 		app.get(
 			'/classes/:email',
 			verifyJWT,
