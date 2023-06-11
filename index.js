@@ -151,6 +151,19 @@ async function run() {
 		});
 
 		// Classes Related Api
+
+		app.get(
+			'/classes/:email',
+			verifyJWT,
+			verifyInstructor,
+			async (req, res) => {
+				const email = req.params.email;
+				const query = { instructorEmail: email };
+				const result = await classCollection.find(query).toArray();
+				res.send(result);
+			}
+		);
+
 		app.post('/classes', verifyJWT, verifyInstructor, async (req, res) => {
 			const newClass = req.body;
 			const result = await classCollection.insertOne(newClass);
