@@ -269,6 +269,14 @@ async function run() {
 		});
 
 		// Payment related api
+
+		app.get('/myenrolledclasses/:email', verifyJWT, async (req, res) => {
+			const email = req.params.email;
+			const query = { studentEmail: email };
+			const result = await paymentCollection.find(query).toArray();
+			res.send(result);
+		});
+
 		app.post('/payments', verifyJWT, async (req, res) => {
 			const paymentInfo = req.body;
 			const insertResult = await paymentCollection.insertOne(paymentInfo);
