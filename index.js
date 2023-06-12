@@ -47,7 +47,7 @@ const client = new MongoClient(uri, {
 async function run() {
 	try {
 		// Connect the client to the server	(optional starting in v4.7)
-		await client.connect();
+		// await client.connect();
 
 		const userCollection = client.db('talkTroveDB').collection('users');
 		const classCollection = client.db('talkTroveDB').collection('classes');
@@ -103,8 +103,8 @@ async function run() {
 			}
 			next();
 		};
+		// This is under classes related api, But It only works here
 
-		// This api is under classes related api, but it works here only
 		app.get('/classes/approved', async (req, res) => {
 			const query = { status: 'approved' };
 			const result = await classCollection.find(query).toArray();
@@ -190,7 +190,6 @@ async function run() {
 		});
 
 		// Classes Related Api
-
 		app.get('/popularclasses', async (req, res) => {
 			const result = await classCollection
 				.find()
