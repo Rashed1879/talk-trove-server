@@ -133,6 +133,11 @@ async function run() {
 			const result = await userCollection.find(query).toArray();
 			res.send(result);
 		});
+		app.get('/popularinstructors', async (req, res) => {
+			const query = { role: 'instructor' };
+			const result = await userCollection.find(query).limit(6).toArray();
+			res.send(result);
+		});
 
 		app.get('/users/admin/:email', verifyJWT, async (req, res) => {
 			const email = req.params.email;
@@ -185,6 +190,16 @@ async function run() {
 		});
 
 		// Classes Related Api
+
+		app.get('/popularclasses', async (req, res) => {
+			const result = await classCollection
+				.find()
+				.sort({ enrolledStudents: -1 })
+				.limit(6)
+				.toArray();
+			res.send(result);
+		});
+
 		app.get('/classes', verifyJWT, verifyAdmin, async (req, res) => {
 			const result = await classCollection.find().toArray();
 			res.send(result);
@@ -300,6 +315,9 @@ async function run() {
 			const updateDoc = {
 				$set: {
 					availableSeats: paymentInfo.availableSeats - 1,
+				},
+				$inc: {
+					enrolledStudents: 1,
 				},
 			};
 			const updateResult = await classCollection.updateOne(
