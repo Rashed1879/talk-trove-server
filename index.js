@@ -4,6 +4,7 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const port = process.env.PORT || 5000;
+const stripe = require('stripe')(process.env.PAYMENT_SECRET_KEY);
 
 // middleware
 app.use(cors());
@@ -53,6 +54,23 @@ async function run() {
 		const selectedClassCollection = client
 			.db('talkTroveDB')
 			.collection('selectedClasses');
+		const paymentCollection = client
+			.db('talkTroveDB')
+			.collection('payment');
+
+		// Generate client Secret
+		app.post('/create-payment-intent', verifyJWT, async (req, res) => {
+			const { price } = req.body;
+			if (price) {
+				const amount = parseFloat(price) * 100;
+				const paymentIntent = await stripe.paymentIntents.create({
+					amount: amount,
+					currency: 'usd',
+					payment_method_types: ['card'],
+				});
+				res.send({ clientSecret: paymentIntent.client_secret });
+			}
+		});
 
 		app.post('/jwt', (req, res) => {
 			const user = req.body;
@@ -248,6 +266,25 @@ async function run() {
 			const query = { _id: new ObjectId(id) };
 			const result = await selectedClassCollection.deleteOne(query);
 			res.send(result);
+		});
+
+		// Payment related api
+		app.post('/payments', verifyJWT, async (req, res) => {
+			const paymentInfo = req.body;
+			const insertResult = await paymentCollection.insertOne(paymentInfo);
+			const query = { _id: new ObjectId(paymentInfo._id) };
+			const deleteResult = await selectedClassCollection.deleteOne(query);
+			const filter = { _id: new ObjectId(paymentInfo.classId) };
+			const updateDoc = {
+				$set: {
+					availableSeats: paymentInfo.availableSeats - 1,
+				},
+			};
+			const updateResult = await classCollection.updateOne(
+				filter,
+				updateDoc
+			);
+			res.send({ insertResult, deleteResult, updateResult });
 		});
 
 		// Send a ping to confirm a successful connection
