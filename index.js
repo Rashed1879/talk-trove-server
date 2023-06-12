@@ -277,6 +277,20 @@ async function run() {
 			res.send(result);
 		});
 
+		app.get(
+			'/payments/paymenthistory/:email',
+			verifyJWT,
+			async (req, res) => {
+				const email = req.params.email;
+				const query = { studentEmail: email };
+				const result = await paymentCollection
+					.find(query)
+					.sort({ date: -1 })
+					.toArray();
+				res.send(result);
+			}
+		);
+
 		app.post('/payments', verifyJWT, async (req, res) => {
 			const paymentInfo = req.body;
 			const insertResult = await paymentCollection.insertOne(paymentInfo);
